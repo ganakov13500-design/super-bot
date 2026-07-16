@@ -2,11 +2,19 @@ import vk_api
 import time
 import os
 
-TOKEN = 'vk1.a.1nUfskY4yfVR5NONEfxscxFqYhpSpd8CBGB7L528bPbOnvz8nVZUzE7Yv1PHJyUFzEllvSSSA8QvSXF5Lpd7mZKfQxa5RFc7JB_1caCb700QoIiDEPB19VzMm3BEkeCfm1Xi4ECsYfhXB1aSPMJ-U_mGbr4nmxfGSbTIQeHPzwVMGMEBChSL3Gq3sLxw0-1Bj93cnVFqFfl1zsBkU8IDEA'
+# Настройки источника и интервала
 SOURCE_GROUP_ID = -204081884  
-TARGET_GROUP_IDS = [-215578086, -221202163, -219647526, -219649455, -215622579]  
 CHECK_INTERVAL = 300  
 LAST_POST_FILE = 'last_post_id.txt'
+
+# Словарь: {ID_ЦЕЛЕВОЙ_ГРУППЫ: 'ЕЁ_УНИКАЛЬНЫЙ_ТОКЕН'}
+TARGET_GROUPS = {
+    -215578086: 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q',
+    -221202163: 'vk1.a.ppOEGD2uuS9imHz627zgVwkrlBvnBwAjYgYwu4ZKVSEm3D5R_fuwqNB09WJujE9XGIxS-BM8h1hTxurv4BfjQ49QPKXnmVxeVZrKwOZFTVAYtubopEVfON038WqNXLHGTvpXRB9Bh7N0PaBeDgFd3-vXe2EWffS6sQC8_MaSFfcmWjKqZIOduVomcuZdm7s7WwS2EbDr_A6O4l7LQ3Mqnw',
+    -219647526: 'vk1.a.LUbRHqYwwF0NudOwykToMCLp64DxJEbfYdB-vhWKQpaqLPMijnoL1IBT9Z2khOqO59o7b7TtnWE6--j8g22l-_84H8hBdTEbgd7X8pig6orDW0CMGmT94AkRwvahuSVlPzvoSmX0tgfjK8jfexNNmS-ZgFc2Z_QbFpJu-nMK7FpNZHcDqc-t0snoKyZF6MonUVdp_jveG_5peif7Zm3i8w',
+    -219649455: 'vk1.a.UbTW2Br60aeXRWawLvQu6kNcsb1Khls0lLjMrfOT99XAsHbNVcrXg8ZdlUN-vdcmdloiSgAKWGJph24OkOUekDitA7NnyCSJPmmbatVSlrpjH80FfoUzO-sQVi2pOdpJcU7uw_7yYn7j7367ZmvO1CYDkqo-tqabTr-v0yTp9nS0ZluFqYjtEcsbJWAoSkkPjaI7HTlNeu9xf74WP6SFVw',
+    -215622579: 'vk1.a.uPE6HPrHtsm3UQIcAjL67s75hoLxyvWX8p4ta1HOyleZcR7cdhtVG11BPr505k1pn2pElTSf3JMF4VBfYdMKYM9z1FcXcnZ_TQrpuR_EaQlydqcnlotqR-yr-8u9mza--uEr6Sjo9it9PzRYECROV75G_8A3TYW1AJ_TJ4mM0DQeetOBOefDzL_tgd3OwJ5P2sMFesxOZESN7ciRUVjq-Q'
+}
 
 def get_saved_last_post_id():
     if os.path.exists(LAST_POST_FILE):
@@ -20,21 +28,40 @@ def save_last_post_id(post_id):
         file.write(str(post_id))
 
 def run_bot_vk_2():
-    print("Авторизация ВКонтакте (Бот 2)...")
-    try:
-        vk_session = vk_api.VkApi(token=TOKEN)
-        vk = vk_session.get_api()
-        vk.users.get() 
-    except Exception as e:
-        print(f"Ошибка авторизации (Бот 2): {e}")
+    print("Инициализация сессий ВКонтакте (Бот 2)...")
+    
+    vk_sessions = {}
+    
+    # Авторизуем каждую группу по её токену
+    for group_id, token in TARGET_GROUPS.items():
+        try:
+            vk_session = vk_api.VkApi(token=token)
+            api = vk_session.get_api()
+            # Проверяем токен группы
+            api.groups.getById()
+            vk_sessions[group_id] = api
+            print(f"[Успех] Группа {group_id} авторизована.")
+        except Exception as e:
+            print(f"[Ошибка] Не удалось авторизовать группу {group_id}. Детали: {e}")
+
+    if not vk_sessions:
+        print("Ни одна группа не авторизована. Скрипт остановлен.")
         return
 
+    # Берем API первой успешно подключенной группы для чтения постов из источника
+    reader_group_id = list(vk_sessions.keys())[0]
+    vk_reader = vk_sessions[reader_group_id]
+
     last_post_id = get_saved_last_post_id()
-    if last_post_id == 481928: last_post_id = 14991
+    if last_post_id == 481928: 
+        last_post_id = 14991
+
+    print(f"Бот 2 запущен. Готов к публикации в {len(vk_sessions)} групп(ы). Последний пост: {last_post_id}")
 
     while True:
         try:
-            response = vk.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
+            # Читаем стену донора
+            response = vk_reader.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
             posts = response['items']
             if not posts:
                 time.sleep(CHECK_INTERVAL)
@@ -50,25 +77,41 @@ def run_bot_vk_2():
                 print(f"[Бот 2] Найден новый пост: {current_post_id}.")
                 post_text = current_post.get('text', '')
                 attachments_list = []
+                
+                # Парсим вложения
                 if 'attachments' in current_post:
                     for att in current_post['attachments']:
                         att_type = att['type']
                         if att_type in ['photo', 'video', 'doc', 'audio']:
                             item = att[att_type]
                             att_str = f"{att_type}{item.get('owner_id')}_{item.get('id')}"
-                            if item.get('access_key'): att_str += f"_{item.get('access_key')}"
+                            if item.get('access_key'): 
+                                att_str += f"_{item.get('access_key')}"
                             attachments_list.append(att_str)
                 
                 attachments_str = ','.join(attachments_list)
-                for target_id in TARGET_GROUP_IDS:
+                
+                # Публикуем во все группы через ИХ СОБСТВЕННЫЕ токены
+                for target_id, vk_writer in vk_sessions.items():
                     try:
-                        vk.wall.post(owner_id=target_id, from_group=1, message=post_text, attachments=attachments_str)
-                        time.sleep(3)  
+                        vk_writer.wall.post(
+                            owner_id=target_id, 
+                            from_group=1, 
+                            message=post_text, 
+                            attachments=attachments_str
+                        )
+                        print(f"[Бот 2] Пост успешно опубликован в {target_id}")
+                        time.sleep(3)  # Пауза, чтобы ВК не заблокировал за спам запросами
                     except Exception as e:
-                        print(f"[Бот 2] Ошибка публикации: {e}")
+                        print(f"[Бот 2] Ошибка публикации в {target_id}: {e}")
 
                 last_post_id = current_post_id
                 save_last_post_id(last_post_id)
+
         except Exception as e:
-            print(f"[Бот 2] Ошибка: {e}")
+            print(f"[Бот 2] Ошибка получения постов: {e}")
+            
         time.sleep(CHECK_INTERVAL)
+
+if __name__ == '__main__':
+    run_bot_vk_2()
