@@ -3,7 +3,7 @@ import time
 import os
 
 # 1. ТОКЕН ДЛЯ ЧТЕНИЯ (Вставь сюда токен от фейкового аккаунта, чтобы Render.com не заморозил основу)
-READ_TOKEN = 'vk1.a.epwD7Tqgk2kINMbv14Txirhpeyhtdk-vRy4aaq-cSPAInHyQJDBe-g1ldP9zLUWKHPNLV8Yv1DURke8iRSvO0sGoaLpCIH6OI9ffpLSNtxBPpkjtjT4sZHHTnsdQB31syV0hJA6tv0wyhvNoy5XHVKH0ZdZTLSSVOUm4E3FWebRXWXO0vU5ymaI1rCwoMuH3zh2lR2t-uI8a-vKM0nRw5w'
+READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
 
 # 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Токен твоей группы)
 TOKEN = 'vk1.a.7xkUXPha1U9ea2vVvl4_4LWsyIYf8sJca1Jrh45wQCNtvFMLgA_70bJYCbncS9txJXqv3bwFj_rMz9UXG3I8jG5_8XfYMQKhgAc8wGJ7Q1ShPOqyx3jiivdoL-DQaFf12Sm_2HFqRkphKRO_54Lhs3x_OvqJZkpQuHXXPl7SrLQ4mDF8GlU50iFT86tujuuXYjEUZULIGagEl6vZqWTIbA'
