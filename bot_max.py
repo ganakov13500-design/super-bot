@@ -3,10 +3,13 @@ import time
 import os
 import asyncio
 import aiohttp
-import io  # Добавлена библиотека для работы с байтами
+import io  
 from maxapi import Bot
 
-VK_TOKEN = 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q'
+# ВАЖНО: Сюда нужно вставить ТОКЕН ПОЛЬЗОВАТЕЛЯ (от фейкового аккаунта), 
+# так как скрипту нужно только ЧИТАТЬ стену ВК.
+VK_READ_TOKEN = 'vk1.a.epwD7Tqgk2kINMbv14Txirhpeyhtdk-vRy4aaq-cSPAInHyQJDBe-g1ldP9zLUWKHPNLV8Yv1DURke8iRSvO0sGoaLpCIH6OI9ffpLSNtxBPpkjtjT4sZHHTnsdQB31syV0hJA6tv0wyhvNoy5XHVKH0ZdZTLSSVOUm4E3FWebRXWXO0vU5ymaI1rCwoMuH3zh2lR2t-uI8a-vKM0nRw5w'
+
 SOURCE_VK_GROUP_ID = -204081884  
 MAX_BOT_TOKEN = 'f9LHodD0cOL81vMNbHAKhY6E8unklP9ERiZH1WN4qu0gTsUj1Dl6p6FUEd9OiiPXcvebPXREXcVP684jEawY'
 TARGET_MAX_CHANNELS = ['-69296966003283', '-69205136755442', '-69209774882901', '-69207050491139', '-69224752493851']
@@ -49,7 +52,6 @@ async def download_and_send_media(media_url, text, channel_id):
                     await bot.send_photo(chat_id=channel_id, photo=photo_file, caption=text if text else None)
                     return True
     except Exception as e: 
-        # Теперь ошибка не будет тихой, вы увидите ее в консоли
         print(f"[Ошибка отправки фото МАКС]: {e}")
         return False
 
@@ -95,10 +97,12 @@ async def process_new_post(post):
 def run_bot_max():
     print("Авторизация (Бот МАКС)...")
     try:
-        vk_session = vk_api.VkApi(token=VK_TOKEN)
+        # ИСПРАВЛЕНИЕ: Используем токен пользователя для чтения
+        vk_session = vk_api.VkApi(token=VK_READ_TOKEN)
         vk = vk_session.get_api()
-        vk.groups.getById() 
-        print("[Успех] Бот МАКС авторизован ВКонтакте.")
+        # ИСПРАВЛЕНИЕ: Убрали groups.getById(). Вместо этого просто проверяем свой профиль
+        vk.users.get() 
+        print("[Успех] Бот МАКС авторизован ВКонтакте (Чтение).")
     except Exception as e: 
         print(f"[Ошибка] Авторизация ВК (Бот МАКС) не удалась: {e}")
         return
