@@ -8,15 +8,16 @@ CHECK_INTERVAL = 300  # 5 минут
 LAST_POST_FILE = 'last_post_id.txt'
 API_VERSION = '5.131' # Обязательно указываем свежую версию API
 
-# ВСТАВЬ СЮДА НОВЫЕ СГЕНЕРИРОВАННЫЕ ТОКЕНЫ!
-READ_TOKEN = 'ТВОЙ_НОВЫЙ_ТОКЕН_ПОЛЬЗОВАТЕЛЯ'
+# ТОКЕН ДЛЯ ЧТЕНИЯ (Сервисный ключ доступа приложения или токен пользователя)
+READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
 
+# Словарь: {ID_ЦЕЛЕВОЙ_ГРУППЫ: 'ЕЁ_УНИКАЛЬНЫЙ_ТОКЕН'}
 TARGET_GROUPS = {
-    -215578086: 'НОВЫЙ_ТОКЕН_ГРУППЫ_1',
-    -221202163: 'НОВЫЙ_ТОКЕН_ГРУППЫ_2',
-    -219647526: 'НОВЫЙ_ТОКЕН_ГРУППЫ_3',
-    -219649455: 'НОВЫЙ_ТОКЕН_ГРУППЫ_4',
-    -215622579: 'НОВЫЙ_ТОКЕН_ГРУППЫ_5'
+    -215578086: 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q',
+    -221202163: 'vk1.a.ppOEGD2uuS9imHz627zgVwkrlBvnBwAjYgYwu4ZKVSEm3D5R_fuwqNB09WJujE9XGIxS-BM8h1hTxurv4BfjQ49QPKXnmVxeVZrKwOZFTVAYtubopEVfON038WqNXLHGTvpXRB9Bh7N0PaBeDgFd3-vXe2EWffS6sQC8_MaSFfcmWjKqZIOduVomcuZdm7s7WwS2EbDr_A6O4l7LQ3Mqnw',
+    -219647526: 'vk1.a.LUbRHqYwwF0NudOwykToMCLp64DxJEbfYdB-vhWKQpaqLPMijnoL1IBT9Z2khOqO59o7b7TtnWE6--j8g22l-_84H8hBdTEbgd7X8pig6orDW0CMGmT94AkRwvahuSVlPzvoSmX0tgfjK8jfexNNmS-ZgFc2Z_QbFpJu-nMK7FpNZHcDqc-t0snoKyZF6MonUVdp_jveG_5peif7Zm3i8w',
+    -219649455: 'vk1.a.UbTW2Br60aeXRWawLvQu6kNcsb1Khls0lLjMrfOT99XAsHbNVcrXg8ZdlUN-vdcmdloiSgAKWGJph24OkOUekDitA7NnyCSJPmmbatVSlrpjH80FfoUzO-sQVi2pOdpJcU7uw_7yYn7j7367ZmvO1CYDkqo-tqabTr-v0yTp9nS0ZluFqYjtEcsbJWAoSkkPjaI7HTlNeu9xf74WP6SFVw',
+    -215622579: 'vk1.a.uPE6HPrHtsm3UQIcAjL67s75hoLxyvWX8p4ta1HOyleZcR7cdhtVG11BPr505k1pn2pElTSf3JMF4VBfYdMKYM9z1FcXcnZ_TQrpuR_EaQlydqcnlotqR-yr-8u9mza--uEr6Sjo9it9PzRYECROV75G_8A3TYW1AJ_TJ4mM0DQeetOBOefDzL_tgd3OwJ5P2sMFesxOZESN7ciRUVjq-Q'
 }
 
 def get_saved_last_post_id():
@@ -136,4 +137,4 @@ def run_bot_vk_2():
 
 if __name__ == '__main__':
     run_bot_vk_2()
-    
+            
