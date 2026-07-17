@@ -2,7 +2,12 @@ import vk_api
 import time
 import os
 
+# 1. ТОКЕН ДЛЯ ЧТЕНИЯ (Вставь сюда токен от фейкового аккаунта, чтобы Render.com не заморозил основу)
+READ_TOKEN = 'vk1.a.epwD7Tqgk2kINMbv14Txirhpeyhtdk-vRy4aaq-cSPAInHyQJDBe-g1ldP9zLUWKHPNLV8Yv1DURke8iRSvO0sGoaLpCIH6OI9ffpLSNtxBPpkjtjT4sZHHTnsdQB31syV0hJA6tv0wyhvNoy5XHVKH0ZdZTLSSVOUm4E3FWebRXWXO0vU5ymaI1rCwoMuH3zh2lR2t-uI8a-vKM0nRw5w'
+
+# 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Токен твоей группы)
 TOKEN = 'vk1.a.7xkUXPha1U9ea2vVvl4_4LWsyIYf8sJca1Jrh45wQCNtvFMLgA_70bJYCbncS9txJXqv3bwFj_rMz9UXG3I8jG5_8XfYMQKhgAc8wGJ7Q1ShPOqyx3jiivdoL-DQaFf12Sm_2HFqRkphKRO_54Lhs3x_OvqJZkpQuHXXPl7SrLQ4mDF8GlU50iFT86tujuuXYjEUZULIGagEl6vZqWTIbA'
+
 SOURCE_GROUP_ID = -218341918  
 TARGET_GROUP_IDS = [-225274463]  
 CHECK_INTERVAL = 300  
@@ -21,13 +26,24 @@ def save_last_post_id(post_id):
 
 def run_bot_vk_1():
     print("Авторизация ВКонтакте (Бот 1)...")
+    
+    # Инициализация сессии для ЧТЕНИЯ (донора)
     try:
-        vk_session = vk_api.VkApi(token=TOKEN)
-        vk = vk_session.get_api()
-        # Проверка авторизации через метод для сообществ
-        vk.groups.getById() 
+        vk_read_session = vk_api.VkApi(token=READ_TOKEN)
+        vk_reader = vk_read_session.get_api()
     except Exception as e:
-        print(f"Ошибка авторизации (Бот 1). Убедитесь, что используете токен группы. Детали: {e}")
+        print(f"Ошибка авторизации читающего аккаунта. Детали: {e}")
+        return
+
+    # Инициализация сессии для ПУБЛИКАЦИИ (группа)
+    try:
+        vk_write_session = vk_api.VkApi(token=TOKEN)
+        vk_writer = vk_write_session.get_api()
+        # ИСПРАВЛЕНИЕ: Передаем конкретный ID группы без минуса (abs)
+        vk_writer.groups.getById(group_id=abs(TARGET_GROUP_IDS[0])) 
+        print(f"[Успех] Целевая группа {TARGET_GROUP_IDS[0]} авторизована.")
+    except Exception as e:
+        print(f"Ошибка авторизации целевой группы. Убедитесь, что токен верный. Детали: {e}")
         return
 
     last_post_id = get_saved_last_post_id()
@@ -35,7 +51,8 @@ def run_bot_vk_1():
 
     while True:
         try:
-            response = vk.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
+            # ИСПРАВЛЕНИЕ: Читаем через vk_reader (токен пользователя)
+            response = vk_reader.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
             posts = response['items']
             if not posts:
                 time.sleep(CHECK_INTERVAL)
@@ -51,6 +68,7 @@ def run_bot_vk_1():
                 print(f"[Бот 1] Найден новый пост: {current_post_id}.")
                 post_text = current_post.get('text', '')
                 attachments_list = []
+                
                 if 'attachments' in current_post:
                     for att in current_post['attachments']:
                         att_type = att['type']
@@ -64,8 +82,8 @@ def run_bot_vk_1():
                 
                 for target_id in TARGET_GROUP_IDS:
                     try:
-                        # from_group=1 означает публикацию от имени самой группы
-                        vk.wall.post(owner_id=target_id, from_group=1, message=post_text, attachments=attachments_str)
+                        # ИСПРАВЛЕНИЕ: Пишем через vk_writer (токен группы)
+                        vk_writer.wall.post(owner_id=target_id, from_group=1, message=post_text, attachments=attachments_str)
                         print(f"[Бот 1] Пост успешно опубликован в {target_id}.")
                         time.sleep(3) 
                     except Exception as e:
