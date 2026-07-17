@@ -7,6 +7,10 @@ SOURCE_GROUP_ID = -204081884
 CHECK_INTERVAL = 300  
 LAST_POST_FILE = 'last_post_id.txt'
 
+# ТОКЕН ДЛЯ ЧТЕНИЯ (Сервисный ключ доступа приложения или токен пользователя)
+# Обязателен, так как токены групп не могут читать чужие стены!
+READ_TOKEN = 'vk1.a.epwD7Tqgk2kINMbv14Txirhpeyhtdk-vRy4aaq-cSPAInHyQJDBe-g1ldP9zLUWKHPNLV8Yv1DURke8iRSvO0sGoaLpCIH6OI9ffpLSNtxBPpkjtjT4sZHHTnsdQB31syV0hJA6tv0wyhvNoy5XHVKH0ZdZTLSSVOUm4E3FWebRXWXO0vU5ymaI1rCwoMuH3zh2lR2t-uI8a-vKM0nRw5w'
+
 # Словарь: {ID_ЦЕЛЕВОЙ_ГРУППЫ: 'ЕЁ_УНИКАЛЬНЫЙ_ТОКЕН'}
 TARGET_GROUPS = {
     -215578086: 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q',
@@ -30,29 +34,36 @@ def save_last_post_id(post_id):
 def run_bot_vk_2():
     print("Инициализация сессий ВКонтакте (Бот 2)...")
     
+    # 1. Создаем сессию для ЧТЕНИЯ донора
+    try:
+        vk_read_session = vk_api.VkApi(token=READ_TOKEN)
+        vk_reader = vk_read_session.get_api()
+        print("[Успех] Сессия для чтения исходной группы создана.")
+    except Exception as e:
+        print(f"[Фатальная Ошибка] Не удалось создать сессию для чтения: {e}")
+        return
+
     vk_sessions = {}
     
-    # Авторизуем каждую группу по её токену
+    # 2. Авторизуем каждую группу по её токену для ПУБЛИКАЦИИ
     for group_id, token in TARGET_GROUPS.items():
         try:
             vk_session = vk_api.VkApi(token=token)
             api = vk_session.get_api()
-            # Проверяем токен группы
-            api.groups.getById()
+            # Проверяем токен группы. Обязательно передаем ID группы без минуса (abs)
+            api.groups.getById(group_id=abs(group_id))
             vk_sessions[group_id] = api
             print(f"[Успех] Группа {group_id} авторизована.")
         except Exception as e:
             print(f"[Ошибка] Не удалось авторизовать группу {group_id}. Детали: {e}")
 
     if not vk_sessions:
-        print("Ни одна группа не авторизована. Скрипт остановлен.")
+        print("Ни одна целевая группа не авторизована. Скрипт остановлен.")
         return
 
-    # Берем API первой успешно подключенной группы для чтения постов из источника
-    reader_group_id = list(vk_sessions.keys())[0]
-    vk_reader = vk_sessions[reader_group_id]
-
     last_post_id = get_saved_last_post_id()
+    
+    # Твой кастомный сброс ID (оставил как было)
     if last_post_id == 481928: 
         last_post_id = 14991
 
@@ -60,7 +71,7 @@ def run_bot_vk_2():
 
     while True:
         try:
-            # Читаем стену донора
+            # Читаем стену донора через правильный READ_TOKEN
             response = vk_reader.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
             posts = response['items']
             if not posts:
@@ -101,7 +112,7 @@ def run_bot_vk_2():
                             attachments=attachments_str
                         )
                         print(f"[Бот 2] Пост успешно опубликован в {target_id}")
-                        time.sleep(3)  # Пауза, чтобы ВК не заблокировал за спам запросами
+                        time.sleep(3)  # Пауза, чтобы ВК не заблокировал за спам
                     except Exception as e:
                         print(f"[Бот 2] Ошибка публикации в {target_id}: {e}")
 
