@@ -1,6 +1,13 @@
 import vk_api
 import time
 import os
+import builtins
+
+# --- ХАК ДЛЯ ПРИНУДИТЕЛЬНОГО ВЫВОДА ЛОГОВ В RENDER ---
+def print(*args, **kwargs):
+    kwargs['flush'] = True
+    builtins.print(*args, **kwargs)
+# -----------------------------------------------------
 
 # Настройки источника и интервала
 SOURCE_GROUP_ID = -240374358  
@@ -56,12 +63,6 @@ def run_bot_vk_2():
         return
 
     last_post_id = get_saved_last_post_id()
-    
-    # ПРИНУДИТЕЛЬНЫЙ ЗАПУСК ДЛЯ ТЕСТА:
-    # Раскомментируйте строку ниже (уберите решетку), чтобы заставить бота 
-    # опубликовать текущий пост прямо сейчас в любом случае.
-    # last_post_id = 1 
-
     print(f"Бот ВК 2 запущен. В памяти ID прошлого поста: {last_post_id}")
 
     while True:
@@ -76,7 +77,6 @@ def run_bot_vk_2():
             current_post = next((p for p in posts if not p.get('is_pinned')), posts[0])
             current_post_id = current_post['id']
 
-            # НОВАЯ СТРОКА ДЛЯ ДИАГНОСТИКИ:
             print(f"[Бот 2 ПРОВЕРКА] ID на стене: {current_post_id} | ID в памяти: {last_post_id}")
 
             if last_post_id == 0:
