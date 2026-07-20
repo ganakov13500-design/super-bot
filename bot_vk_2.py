@@ -2,6 +2,7 @@ import vk_api
 import time
 import os
 import builtins
+import random
 
 # --- ХАК ДЛЯ ПРИНУДИТЕЛЬНОГО ВЫВОДА ЛОГОВ В RENDER ---
 def print(*args, **kwargs):
@@ -10,28 +11,38 @@ def print(*args, **kwargs):
 # -----------------------------------------------------
 
 # Настройки источника и интервала
-SOURCE_GROUP_ID = -240374358  
+SOURCE_GROUP_ID = -204081884  
 CHECK_INTERVAL = 300  
 LAST_POST_FILE = 'last_post_id.txt'
 
-# 1. ТОКЕН ДЛЯ ЧТЕНИЯ
+# 1. ТОКЕН ДЛЯ ЧТЕНИЯ 
 READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
 
-# 2. ТОКЕНЫ ДЛЯ ПУБЛИКАЦИИ
-TARGET_GROUPS = {
-    -215578086: 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q',
-    -221202163: 'vk1.a.ppOEGD2uuS9imHz627zgVwkrlBvnBwAjYgYwu4ZKVSEm3D5R_fuwqNB09WJujE9XGIxS-BM8h1hTxurv4BfjQ49QPKXnmVxeVZrKwOZFTVAYtubopEVfON038WqNXLHGTvpXRB9Bh7N0PaBeDgFd3-vXe2EWffS6sQC8_MaSFfcmWjKqZIOduVomcuZdm7s7WwS2EbDr_A6O4l7LQ3Mqnw',
-    -219647526: 'vk1.a.LUbRHqYwwF0NudOwykToMCLp64DxJEbfYdB-vhWKQpaqLPMijnoL1IBT9Z2khOqO59o7b7TtnWE6--j8g22l-_84H8hBdTEbgd7X8pig6orDW0CMGmT94AkRwvahuSVlPzvoSmX0tgfjK8jfexNNmS-ZgFc2Z_QbFpJu-nMK7FpNZHcDqc-t0snoKyZF6MonUVdp_jveG_5peif7Zm3i8w',
-    -219649455: 'vk1.a.UbTW2Br60aeXRWawLvQu6kNcsb1Khls0lLjMrfOT99XAsHbNVcrXg8ZdlUN-vdcmdloiSgAKWGJph24OkOUekDitA7NnyCSJPmmbatVSlrpjH80FfoUzO-sQVi2pOdpJcU7uw_7yYn7j7367ZmvO1CYDkqo-tqabTr-v0yTp9nS0ZluFqYjtEcsbJWAoSkkPjaI7HTlNeu9xf74WP6SFVw',
-    -215622579: 'vk1.a.uPE6HPrHtsm3UQIcAjL67s75hoLxyvWX8p4ta1HOyleZcR7cdhtVG11BPr505k1pn2pElTSf3JMF4VBfYdMKYM9z1FcXcnZ_TQrpuR_EaQlydqcnlotqR-yr-8u9mza--uEr6Sjo9it9PzRYECROV75G_8A3TYW1AJ_TJ4mM0DQeetOBOefDzL_tgd3OwJ5P2sMFesxOZESN7ciRUVjq-Q'
-}
+# 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Админский токен профиля)
+WRITE_TOKEN = 'vk1.a.DfdvCntvdJ-m4AzB23YnnoX-bcL96v1Uo1UN_h4_xgw0MQcMfYVdmdtlw4V2Vg_2cl-xsGtOX-Cj7g5Rp5nWBLsgSXCe2vubynyXfDpaPXjfxuXckj3lyu0lOEaAENKvhNx8fWnu4s-3NQfqyH-0mR4hm9uW56yDDsi0qQpnW-ecsmyIn6sFcAPyeSci0VA9aDNzcS5lUsJKs25MJWTJXQ'
 
+# 3. СПИСОК ЦЕЛЕВЫХ ГРУПП
+TARGET_GROUP_IDS = [
+    -215578086, 
+    -221202163, 
+    -219647526, 
+    -219649455, 
+    -215622579
+]
+
+# 🔥 ФИКСАЦИЯ СЧЕТЧИКА НА 15107 🔥
 def get_saved_last_post_id():
     if os.path.exists(LAST_POST_FILE):
         with open(LAST_POST_FILE, 'r') as file:
-            try: return int(file.read().strip())
-            except ValueError: return 0
-    return 0
+            try: 
+                val = int(file.read().strip())
+                if val < 15107:
+                    print(f"[Бот 2] Текущий кэш ({val}) меньше целевого. Принудительно устанавливаем на 15107!")
+                    return 15107
+                return val
+            except ValueError: 
+                return 15107
+    return 15107
 
 def save_last_post_id(post_id):
     with open(LAST_POST_FILE, 'w') as file:
@@ -45,25 +56,20 @@ def run_bot_vk_2():
         vk_reader = vk_read_session.get_api()
         print("[Успех] Сессия для чтения исходной группы создана.")
     except Exception as e:
-        print(f"[Фатальная Ошибка] Не удалось создать сессию. Детали: {e}")
+        print(f"[Фатальная Ошибка] Не удалось создать сессию чтения. Детали: {e}")
         return
 
-    vk_sessions = {}
-    for group_id, token in TARGET_GROUPS.items():
-        try:
-            vk_write_session = vk_api.VkApi(token=token)
-            vk_writer = vk_write_session.get_api()
-            vk_writer.groups.getById(group_id=abs(group_id)) 
-            vk_sessions[group_id] = vk_writer
-            print(f"[Успех] Целевая группа {group_id} авторизована.")
-        except Exception as e:
-            print(f"[Ошибка] Не удалось авторизовать группу {group_id}. Детали: {e}")
-
-    if not vk_sessions:
+    try:
+        vk_write_session = vk_api.VkApi(token=WRITE_TOKEN)
+        vk_writer = vk_write_session.get_api()
+        print("[Успех] Сессия пользователя-администратора создана.")
+    except Exception as e:
+        print(f"[Фатальная Ошибка] Не удалось создать сессию публикации. Детали: {e}")
         return
 
     last_post_id = get_saved_last_post_id()
     print(f"Бот ВК 2 запущен. В памяти ID прошлого поста: {last_post_id}")
+    print(f"Готов к публикации в {len(TARGET_GROUP_IDS)} групп(ы).")
 
     while True:
         try:
@@ -85,7 +91,7 @@ def run_bot_vk_2():
                 print(f"[Бот 2] Это ПЕРВЫЙ запуск. Запомнили пост {last_post_id}. Публиковать НЕ БУДЕМ. Ждем новый пост.")
             
             elif current_post_id <= last_post_id:
-                print(f"[Бот 2] Новых постов нет (на стене {current_post_id} <= {last_post_id}). Ухожу в сон на 5 минут.")
+                print(f"[Бот 2] Новых постов нет (на стене {current_post_id} <= {last_post_id}). Ухожу в сон.")
                 
             elif current_post_id > last_post_id:
                 print(f"\n[Бот 2] НАЙДЕН НОВЫЙ ПОСТ: {current_post_id}! Начинаю рассылку...")
@@ -103,11 +109,20 @@ def run_bot_vk_2():
                 
                 attachments_str = ','.join(attachments_list)
                 
-                for target_id, vk_writer in vk_sessions.items():
+                for target_id in TARGET_GROUP_IDS:
                     try:
-                        vk_writer.wall.post(owner_id=target_id, from_group=1, message=post_text, attachments=attachments_str)
+                        vk_writer.wall.post(
+                            owner_id=target_id, 
+                            from_group=1, 
+                            message=post_text, 
+                            attachments=attachments_str
+                        )
                         print(f"  -> Успешно отправлено в {target_id}")
-                        time.sleep(3)
+                        
+                        sleep_time = random.randint(15, 40)
+                        print(f"  -> Антиспам: ждем {sleep_time} сек...")
+                        time.sleep(sleep_time)
+                        
                     except Exception as e:
                         print(f"  -> Ошибка отправки в {target_id}: {e}")
 
@@ -118,8 +133,8 @@ def run_bot_vk_2():
         except Exception as e:
             print(f"[Бот 2] Общая ошибка проверки постов: {e}")
         
-        time.sleep(CHECK_INTERVAL)
+        final_wait = CHECK_INTERVAL + random.randint(10, 90)
+        time.sleep(final_wait)
 
 if __name__ == '__main__':
     run_bot_vk_2()
-    
