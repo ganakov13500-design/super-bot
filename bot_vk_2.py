@@ -94,20 +94,47 @@ def run_bot_vk_2():
                 print(f"[Бот 2] Новых постов нет (на стене {current_post_id} <= {last_post_id}). Ухожу в сон.")
                 
             elif current_post_id > last_post_id:
-                print(f"\n[Бот 2] НАЙДЕН НОВЫЙ ПОСТ: {current_post_id}! Начинаю рассылку...")
+                print(f"\n[Бот 2] НАЙДЕН НОВЫЙ ПОСТ: {current_post_id}! Начинаю обработку медиа...")
                 post_text = current_post.get('text', '')
                 attachments_list = []
                 
-                if 'attachments' in current_post:
-                    for att in current_post['attachments']:
-                        att_type = att['type']
+                # --- УЛУЧШЕННАЯ ФУНКЦИЯ ИЗВЛЕЧЕНИЯ МЕДИА ---
+                def extract_attachments(attachments_data):
+                    extracted = []
+                    for att in attachments_data:
+                        att_type = att.get('type')
                         if att_type in ['photo', 'video', 'doc', 'audio']:
-                            item = att[att_type]
-                            att_str = f"{att_type}{item.get('owner_id')}_{item.get('id')}"
-                            if item.get('access_key'): att_str += f"_{item.get('access_key')}"
-                            attachments_list.append(att_str)
+                            item = att.get(att_type, {})
+                            owner_id = item.get('owner_id')
+                            media_id = item.get('id')
+                            
+                            # Если есть и ID владельца, и ID файла — собираем строку для ВК
+                            if owner_id and media_id:
+                                att_str = f"{att_type}{owner_id}_{media_id}"
+                                if item.get('access_key'): 
+                                    att_str += f"_{item.get('access_key')}"
+                                extracted.append(att_str)
+                    return extracted
+
+                # 1. Извлекаем медиа из обычного поста
+                if 'attachments' in current_post:
+                    attachments_list.extend(extract_attachments(current_post['attachments']))
                 
+                # 2. Если это РЕПОСТ, извлекаем текст и медиа из оригинального поста
+                if 'copy_history' in current_post and len(current_post['copy_history']) > 0:
+                    repost = current_post['copy_history'][0]
+                    
+                    # Добавляем текст репоста, если он есть
+                    if not post_text and repost.get('text'):
+                        post_text = repost['text']
+                        
+                    # Добавляем картинки/видео из репоста
+                    if 'attachments' in repost:
+                        attachments_list.extend(extract_attachments(repost['attachments']))
+
                 attachments_str = ','.join(attachments_list)
+                print(f"[Бот 2] Собрано вложений: {len(attachments_list)}")
+                # ---------------------------------------------
                 
                 for target_id in TARGET_GROUP_IDS:
                     try:
@@ -138,3 +165,4 @@ def run_bot_vk_2():
 
 if __name__ == '__main__':
     run_bot_vk_2()
+    
