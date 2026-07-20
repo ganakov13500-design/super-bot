@@ -3,7 +3,7 @@ import time
 import os
 
 # Настройки источника и интервала
-SOURCE_GROUP_ID = -204081884  
+SOURCE_GROUP_ID = -240374358  
 CHECK_INTERVAL = 300  # 5 минут
 LAST_POST_FILE = 'last_post_id.txt'
 API_VERSION = '5.131' # Обязательно указываем свежую версию API
