@@ -6,12 +6,11 @@ import os
 SOURCE_GROUP_ID = -240374358  
 CHECK_INTERVAL = 300  # 5 минут
 LAST_POST_FILE = 'last_post_id.txt'
-API_VERSION = '5.131' # Обязательно указываем свежую версию API
 
-# ТОКЕН ДЛЯ ЧТЕНИЯ (Сервисный ключ доступа приложения или токен пользователя)
+# 1. ТОКЕН ДЛЯ ЧТЕНИЯ (Вставь сюда токен от фейкового аккаунта)
 READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
 
-# Словарь: {ID_ЦЕЛЕВОЙ_ГРУППЫ: 'ЕЁ_УНИКАЛЬНЫЙ_ТОКЕН'}
+# 2. ТОКЕНЫ ДЛЯ ПУБЛИКАЦИИ (Словарь: {ID_ЦЕЛЕВОЙ_ГРУППЫ: 'ЕЁ_УНИКАЛЬНЫЙ_ТОКЕН'})
 TARGET_GROUPS = {
     -215578086: 'vk1.a.7bP--MARwJ67rtpJY2TF1s4I8r5MvGlWyNZf0faRGyS5lvXB900G7NnEgkcqtXc8X1bMThqo0pJ-zEou77gCgC47BdbfWMSkfC0bmvnzVPSdDmnv5nOC56ABHH-qmj4E-OmFlNI1kmY54i1MXeaTEYJEICZuxm7tBf2OuqvPHIRJztrNaAzEeKJapW_ILRWD2kaas9Cn1qCHEjVXm8ZO9Q',
     -221202163: 'vk1.a.ppOEGD2uuS9imHz627zgVwkrlBvnBwAjYgYwu4ZKVSEm3D5R_fuwqNB09WJujE9XGIxS-BM8h1hTxurv4BfjQ49QPKXnmVxeVZrKwOZFTVAYtubopEVfON038WqNXLHGTvpXRB9Bh7N0PaBeDgFd3-vXe2EWffS6sQC8_MaSFfcmWjKqZIOduVomcuZdm7s7WwS2EbDr_A6O4l7LQ3Mqnw',
@@ -23,10 +22,8 @@ TARGET_GROUPS = {
 def get_saved_last_post_id():
     if os.path.exists(LAST_POST_FILE):
         with open(LAST_POST_FILE, 'r') as file:
-            try: 
-                return int(file.read().strip())
-            except ValueError: 
-                return 0
+            try: return int(file.read().strip())
+            except ValueError: return 0
     return 0
 
 def save_last_post_id(post_id):
@@ -34,51 +31,43 @@ def save_last_post_id(post_id):
         file.write(str(post_id))
 
 def run_bot_vk_2():
-    print("Инициализация сессий ВКонтакте (Бот 2)...")
+    print("Авторизация ВКонтакте (Бот 2)...")
     
-    # 1. Создаем сессию для ЧТЕНИЯ донора
+    # Инициализация сессии для ЧТЕНИЯ (донора)
     try:
-        vk_read_session = vk_api.VkApi(token=READ_TOKEN, api_version=API_VERSION)
+        vk_read_session = vk_api.VkApi(token=READ_TOKEN)
         vk_reader = vk_read_session.get_api()
         print("[Успех] Сессия для чтения исходной группы создана.")
     except Exception as e:
-        print(f"[Фатальная Ошибка] Не удалось создать сессию для чтения: {e}")
+        print(f"[Фатальная Ошибка] Не удалось создать сессию для чтения. Детали: {e}")
         return
 
+    # Инициализация сессий для ПУБЛИКАЦИИ (группы)
     vk_sessions = {}
-    
-    # 2. Авторизуем каждую группу по её токену для ПУБЛИКАЦИИ
     for group_id, token in TARGET_GROUPS.items():
         try:
-            vk_session = vk_api.VkApi(token=token, api_version=API_VERSION)
-            api = vk_session.get_api()
-            
-            # Проверяем токен: если токен не от той группы, он выдаст ошибку
-            api.groups.getById(group_id=abs(group_id))
-            vk_sessions[group_id] = api
-            print(f"[Успех] Группа {group_id} авторизована.")
+            vk_write_session = vk_api.VkApi(token=token)
+            vk_writer = vk_write_session.get_api()
+            # Передаем конкретный ID группы без минуса (abs) для проверки
+            vk_writer.groups.getById(group_id=abs(group_id)) 
+            vk_sessions[group_id] = vk_writer
+            print(f"[Успех] Целевая группа {group_id} авторизована.")
         except Exception as e:
-            print(f"[Ошибка] Не удалось авторизовать группу {group_id}. Детали: {e}")
+            print(f"[Ошибка] Не удалось авторизовать группу {group_id}. Убедитесь, что токен верный. Детали: {e}")
 
     if not vk_sessions:
         print("Ни одна целевая группа не авторизована. Скрипт остановлен.")
         return
 
     last_post_id = get_saved_last_post_id()
-    
-    # Кастомный сброс ID (оставил твою логику)
-    if last_post_id == 481928: 
-        last_post_id = 14991
-
-    print(f"Бот 2 запущен. Готов к публикации в {len(vk_sessions)} групп(ы).")
-    print(f"Последний известный ID поста: {last_post_id if last_post_id > 0 else 'Нет (первый запуск)'}")
+    print(f"Бот ВК 2 запущен. Готов к публикации в {len(vk_sessions)} групп(ы).")
+    print(f"Последний известный ID поста: {last_post_id}")
 
     while True:
         try:
-            # Читаем стену донора
+            # Читаем стену донора через vk_reader
             response = vk_reader.wall.get(owner_id=SOURCE_GROUP_ID, count=2)
             posts = response['items']
-            
             if not posts:
                 time.sleep(CHECK_INTERVAL)
                 continue
@@ -106,35 +95,30 @@ def run_bot_vk_2():
                         if att_type in ['photo', 'video', 'doc', 'audio']:
                             item = att[att_type]
                             att_str = f"{att_type}{item.get('owner_id')}_{item.get('id')}"
-                            if item.get('access_key'): 
-                                att_str += f"_{item.get('access_key')}"
+                            if item.get('access_key'): att_str += f"_{item.get('access_key')}"
                             attachments_list.append(att_str)
                 
                 attachments_str = ','.join(attachments_list)
                 
-                # Публикуем во все группы
+                # Публикуем во все авторизованные группы
                 for target_id, vk_writer in vk_sessions.items():
                     try:
-                        vk_writer.wall.post(
-                            owner_id=target_id, 
-                            from_group=1, 
-                            message=post_text, 
-                            attachments=attachments_str
-                        )
-                        print(f"  -> Пост успешно опубликован в {target_id}")
+                        # Пишем через vk_writer конкретной группы
+                        vk_writer.wall.post(owner_id=target_id, from_group=1, message=post_text, attachments=attachments_str)
+                        print(f"  -> [Бот 2] Пост успешно опубликован в {target_id}")
                         time.sleep(3)  # Антиспам пауза
                     except Exception as e:
-                        print(f"  -> [Ошибка] Не удалось опубликовать в {target_id}: {e}")
+                        print(f"  -> [Бот 2] Ошибка публикации в {target_id}: {e}")
 
                 last_post_id = current_post_id
                 save_last_post_id(last_post_id)
                 print("[Бот 2] Рассылка завершена. Возвращаюсь в режим ожидания.")
 
         except Exception as e:
-            print(f"[Бот 2] Ошибка при проверке стены: {e}")
-            
+            print(f"[Бот 2] Ошибка получения постов: {e}")
+        
         time.sleep(CHECK_INTERVAL)
 
 if __name__ == '__main__':
     run_bot_vk_2()
-            
+    
