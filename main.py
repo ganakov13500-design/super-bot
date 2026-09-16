@@ -44,7 +44,9 @@ if __name__ == '__main__':
         process.start()
         processes.append(process)
         print(f"[SYSTEM] Процесс запущен: {func.__name__}")
-        time.sleep(2) # Пауза, чтобы не нагружать CPU при старте
+        
+        # 🔥 ИСПРАВЛЕНИЕ: Увеличенная пауза для обхода Flood control ВКонтакте
+        time.sleep(15) 
         
     # 2. Запускаем веб-сервер в главном процессе (он держит Render активным)
     try:
