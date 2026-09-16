@@ -1,13 +1,14 @@
 import imaplib
 import email
 from email.header import decode_header
+import email.utils
 import time
 import requests
 import asyncio
 import os
 
 EMAIL_LOGIN = 'sharoy-roo@mail.ru'
-EMAIL_PASSWORD = 'nJ4r4YVkd1fA5mOrhw5Z'
+EMAIL_PASSWORD = 'musalovamb99'
 IMAP_SERVER = 'imap.mail.ru'
 ID_INSTANCE = '7107631855'
 API_TOKEN = '6b85d9d9086b4c18919ab1d919c3795d896e40cfb1244c42a8'
@@ -26,19 +27,56 @@ def decode_mime_words(s):
             decoded_words.append(word)
     return u''.join(decoded_words)
 
+# --- НОВАЯ ФУНКЦИЯ ДЛЯ ПРАВИЛЬНЫХ ИМЕН ФАЙЛОВ ---
+def decode_filename(filename):
+    if not filename:
+        return "document.file"
+    
+    # Исправляем сложные кодировки RFC2231
+    filename = email.utils.collapse_rfc2231_value(filename)
+    
+    decoded_parts = decode_header(filename)
+    result = []
+    for word, encoding in decoded_parts:
+        if isinstance(word, bytes):
+            charset = encoding if encoding else 'utf-8'
+            try:
+                result.append(word.decode(charset))
+            except:
+                try: result.append(word.decode('windows-1251'))
+                except: result.append(word.decode('utf-8', errors='ignore'))
+        else:
+            # Исправляем "кракозябры", если Python ошибся с кодировкой (fallback to latin-1)
+            if isinstance(word, str):
+                try:
+                    raw_bytes = word.encode('latin-1')
+                    try: word = raw_bytes.decode('utf-8')
+                    except UnicodeDecodeError:
+                        try: word = raw_bytes.decode('windows-1251')
+                        except: pass
+                except UnicodeEncodeError:
+                    pass
+            result.append(word)
+            
+    clean_name = ''.join(result)
+    
+    # Очищаем имя от запрещенных системных символов (защита от ошибок сохранения)
+    for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|', '\n', '\r']:
+        clean_name = clean_name.replace(char, '_')
+        
+    return clean_name
+# ------------------------------------------------
+
 def send_whatsapp_message(text):
-    """Функция для отправки текстового сообщения"""
     url = f"https://api.green-api.com/waInstance{ID_INSTANCE}/sendMessage/{API_TOKEN}"
     try: requests.post(url, json={"chatId": WHATSAPP_CHAT_ID, "message": text})
     except Exception as e: print(f"[Бот Mail] Ошибка WhatsApp (Текст): {e}")
 
 def send_whatsapp_file(filepath, filename):
-    """Функция для отправки файла (документ, фото) в WhatsApp"""
     url = f"https://api.green-api.com/waInstance{ID_INSTANCE}/sendFileByUpload/{API_TOKEN}"
     payload = {'chatId': WHATSAPP_CHAT_ID}
     try:
         with open(filepath, 'rb') as f:
-            # Green-API требует отправки файла как multipart/form-data
             files = {'file': (filename, f)}
             response = requests.post(url, data=payload, files=files)
             if response.status_code == 200:
@@ -49,7 +87,7 @@ def send_whatsapp_file(filepath, filename):
         print(f"[Бот Mail] Ошибка WhatsApp (Файл): {e}")
 
 async def check_mail_loop():
-    print("Запуск бота Mail.ru (с поддержкой вложений)...")
+    print("Запуск бота Mail.ru (с умной дешифровкой файлов)...")
     while True:
         try:
             mail = imaplib.IMAP4_SSL(IMAP_SERVER)
@@ -68,24 +106,22 @@ async def check_mail_loop():
                             sender = decode_mime_words(msg.get("From"))
                             
                             body = ""
-                            attachments = [] # Список для хранения путей к файлам
+                            attachments = [] 
                             
                             if msg.is_multipart():
                                 for part in msg.walk():
-                                    # 1. Извлекаем текст
                                     if part.get_content_type() == "text/plain" and part.get_filename() is None:
                                         try: 
-                                            if not body: # Берем только первую текстовую часть
+                                            if not body:
                                                 body = part.get_payload(decode=True).decode(errors='ignore')
                                         except: pass
                                     
-                                    # 2. Извлекаем вложения
-                                    filename = part.get_filename()
-                                    if filename:
-                                        filename = decode_mime_words(filename)
+                                    # --- ПРИМЕНЯЕМ НОВУЮ ФУНКЦИЮ ЗДЕСЬ ---
+                                    raw_filename = part.get_filename()
+                                    if raw_filename:
+                                        filename = decode_filename(raw_filename)
                                         filepath = os.path.join(os.getcwd(), filename)
                                         try:
-                                            # Скачиваем файл на сервер
                                             file_data = part.get_payload(decode=True)
                                             if file_data:
                                                 with open(filepath, 'wb') as f:
@@ -97,7 +133,6 @@ async def check_mail_loop():
                                 try: body = msg.get_payload(decode=True).decode(errors='ignore')
                                 except: pass
                             
-                            # Формируем и отправляем текст письма
                             if len(body) > 500: body = body[:500] + "\n[...]"
                             text = f"📧 *НОВОЕ ПИСЬМО (Mail.ru)*\n👤 *От:* {sender}\n📌 *Тема:* {subject}\n📝 *Текст:*\n{body.strip()}"
                             
@@ -107,12 +142,9 @@ async def check_mail_loop():
                             send_whatsapp_message(text)
                             await asyncio.sleep(2) 
                             
-                            # Отправляем скачанные файлы
                             for att in attachments:
                                 send_whatsapp_file(att['path'], att['name'])
-                                await asyncio.sleep(2) # Пауза между отправками файлов
-                                
-                                # Обязательно удаляем файл с сервера после отправки!
+                                await asyncio.sleep(2)
                                 try: os.remove(att['path'])
                                 except: pass
                                 
