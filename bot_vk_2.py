@@ -33,7 +33,7 @@ TARGET_GROUP_IDS = [
 # 🔥 ФИКСАЦИЯ СЧЕТЧИКА НА 15107 🔥
 def get_saved_last_post_id():
     if os.path.exists(LAST_POST_FILE):
-        with open(LAST_POST_FILE, 'r') as file:
+        with open(LAST_POST_FILE, 'r', encoding='utf-8') as file:
             try: 
                 val = int(file.read().strip())
                 if val < 15107:
@@ -45,7 +45,7 @@ def get_saved_last_post_id():
     return 15107
 
 def save_last_post_id(post_id):
-    with open(LAST_POST_FILE, 'w') as file:
+    with open(LAST_POST_FILE, 'w', encoding='utf-8') as file:
         file.write(str(post_id))
 
 def run_bot_vk_2():
@@ -108,8 +108,8 @@ def run_bot_vk_2():
                             owner_id = item.get('owner_id')
                             media_id = item.get('id')
                             
-                            # Если есть и ID владельца, и ID файла — собираем строку для ВК
-                            if owner_id and media_id:
+                            # ИСПРАВЛЕНИЕ: Безопасная проверка на None
+                            if owner_id is not None and media_id is not None:
                                 att_str = f"{att_type}{owner_id}_{media_id}"
                                 if item.get('access_key'): 
                                     att_str += f"_{item.get('access_key')}"
@@ -146,7 +146,8 @@ def run_bot_vk_2():
                         )
                         print(f"  -> Успешно отправлено в {target_id}")
                         
-                        sleep_time = random.randint(15, 40)
+                        # ИСПРАВЛЕНИЕ: Чуть увеличен антиспам для безопасности профиля
+                        sleep_time = random.randint(30, 60)
                         print(f"  -> Антиспам: ждем {sleep_time} сек...")
                         time.sleep(sleep_time)
                         
@@ -165,4 +166,3 @@ def run_bot_vk_2():
 
 if __name__ == '__main__':
     run_bot_vk_2()
-    
