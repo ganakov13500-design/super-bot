@@ -11,7 +11,7 @@ def print(*args, **kwargs):
 # -----------------------------------------------------
 
 # 1. ТОКЕН ДЛЯ ЧТЕНИЯ (фейковый/дополнительный аккаунт)
-READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
+READ_TOKEN = 'vk1.a.UQQypBdwlUwwk6O3z7iJAXc8Tnzx6VcB3seRHXgioyrLDLW-xYTXy7SCqONeAc7FOuadlIg1u52uEVFGrKvjCZmV-wq70J2TG_MqZKtn7aXkudTIrURT-OG2bzB1neTWwkHAM-buqJIWLYT8ioGLy6EiL84LamSMjstFgw1ynkXR_sCGZsspN2zbF5P9chaLu98ONjvbDVGk67_j1-CURw'
 
 # 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ 
 WRITE_TOKEN = 'vk1.a.ev-6nDQqkhKAByZBoyIdTCrgqIB_btajDrjCRfMQGoDJh79nCN8oFtsIMnt9QU1wN8UJNhVsJQduZEpQ7OCXT4Y2GRoCcYUkYLXTUD4fcl05-gdrs8fZGNHNCYdCLcM3kCH3lastGbYNTeBMctmM1YES4B5vZ53hORiDyKjn9HwWwPVO-8ce5Q6hZ8IbAgY3Jxp2lGvqQJeiQfXkN-3k1g'
