@@ -19,7 +19,7 @@ LAST_POST_FILE = 'last_post_id.txt'
 READ_TOKEN = 'vk1.a.ezI_5MZF-3M53uwZ5z1uPr6Ge6xdFOgxVQ3ki0hfXO-NlpPkjPTR6Q_nNS_4uGHZtcAiKIxix_XC1hFqLjcQKcGH004RY86ZtJypWl872BK4cbF-BoLca2xU0RaeQkt82TJxAto9bJeWwwSp2Zl82ttitq9I1SeyRERKWfCCVCQdCQv_L-mYHrMG8Z9-d9F8IJEHWWWchiZ48XNMnIBsPw'
 
 # 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Админский токен профиля)
-WRITE_TOKEN = 'vk1.a.DfdvCntvdJ-m4AzB23YnnoX-bcL96v1Uo1UN_h4_xgw0MQcMfYVdmdtlw4V2Vg_2cl-xsGtOX-Cj7g5Rp5nWBLsgSXCe2vubynyXfDpaPXjfxuXckj3lyu0lOEaAENKvhNx8fWnu4s-3NQfqyH-0mR4hm9uW56yDDsi0qQpnW-ecsmyIn6sFcAPyeSci0VA9aDNzcS5lUsJKs25MJWTJXQ'
+WRITE_TOKEN = 'vk1.a.ev-6nDQqkhKAByZBoyIdTCrgqIB_btajDrjCRfMQGoDJh79nCN8oFtsIMnt9QU1wN8UJNhVsJQduZEpQ7OCXT4Y2GRoCcYUkYLXTUD4fcl05-gdrs8fZGNHNCYdCLcM3kCH3lastGbYNTeBMctmM1YES4B5vZ53hORiDyKjn9HwWwPVO-8ce5Q6hZ8IbAgY3Jxp2lGvqQJeiQfXkN-3k1g'
 
 # 3. СПИСОК ЦЕЛЕВЫХ ГРУПП
 TARGET_GROUP_IDS = [
