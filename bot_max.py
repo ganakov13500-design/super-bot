@@ -8,7 +8,7 @@ from maxapi import Bot
 
 # ВАЖНО: Сюда нужно вставить ТОКЕН ПОЛЬЗОВАТЕЛЯ (от фейкового аккаунта), 
 # так как скрипту нужно только ЧИТАТЬ стену ВК.
-VK_READ_TOKEN = 'vk1.a.ev-6nDQqkhKAByZBoyIdTCrgqIB_btajDrjCRfMQGoDJh79nCN8oFtsIMnt9QU1wN8UJNhVsJQduZEpQ7OCXT4Y2GRoCcYUkYLXTUD4fcl05-gdrs8fZGNHNCYdCLcM3kCH3lastGbYNTeBMctmM1YES4B5vZ53hORiDyKjn9HwWwPVO-8ce5Q6hZ8IbAgY3Jxp2lGvqQJeiQfXkN-3k1g'
+VK_READ_TOKEN = 'vk1.a.UQQypBdwlUwwk6O3z7iJAXc8Tnzx6VcB3seRHXgioyrLDLW-xYTXy7SCqONeAc7FOuadlIg1u52uEVFGrKvjCZmV-wq70J2TG_MqZKtn7aXkudTIrURT-OG2bzB1neTWwkHAM-buqJIWLYT8ioGLy6EiL84LamSMjstFgw1ynkXR_sCGZsspN2zbF5P9chaLu98ONjvbDVGk67_j1-CURw'
 
 SOURCE_VK_GROUP_ID = -204081884  
 MAX_BOT_TOKEN = 'f9LHodD0cOL81vMNbHAKhY6E8unklP9ERiZH1WN4qu0gTsUj1Dl6p6FUEd9OiiPXcvebPXREXcVP684jEawY'
