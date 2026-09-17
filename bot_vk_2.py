@@ -15,20 +15,18 @@ SOURCE_GROUP_ID = -204081884
 CHECK_INTERVAL = 300  
 LAST_POST_FILE = 'last_post_id.txt'
 
-# 1. ТОКЕН ДЛЯ ЧТЕНИЯ 
+# 1. ТОКЕН ДЛЯ ЧТЕНИЯ (Оставляем для парсинга стены-донора)
 READ_TOKEN = 'vk1.a.UQQypBdwlUwwk6O3z7iJAXc8Tnzx6VcB3seRHXgioyrLDLW-xYTXy7SCqONeAc7FOuadlIg1u52uEVFGrKvjCZmV-wq70J2TG_MqZKtn7aXkudTIrURT-OG2bzB1neTWwkHAM-buqJIWLYT8ioGLy6EiL84LamSMjstFgw1ynkXR_sCGZsspN2zbF5P9chaLu98ONjvbDVGk67_j1-CURw'
 
-# 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Админский токен профиля)
-WRITE_TOKEN = 'vk1.a.yM8IODPavo2KnBDhMzPZ4HKrM2hySPHFGIQNdff7gXO76zSsGf7yuizaHxWQbjq7AuxtWGBRPwk7Oil3t72loXwzk1LcooD6acRaWCXq6DesfXy0M9Knm9-YIrWL8T-tbWOsfiBpd6nFQ3Nkcmq1y4Csiwx15Zd0BlVIIxy9stFdi7-j_4SrUCMYSUtWG-0DuEbVlcsPP0a0WEIbXL1Ggg'
-
-# 3. СПИСОК ЦЕЛЕВЫХ ГРУПП
-TARGET_GROUP_IDS = [
-    -215578086, 
-    -221202163, 
-    -219647526, 
-    -219649455, 
-    -215622579
-]
+# 2. ИНДИВИДУАЛЬНЫЕ ТОКЕНЫ ЦЕЛЕВЫХ ГРУПП
+# Если бот опубликует пост К1 в группу К2, просто поменяйте местами токены в этом списке.
+TARGET_GROUPS = {
+    -215578086: 'vk1.a.7xAW5jS-qXvnUq4u5gDU1zrOe-b0wLGTl1giQVIYrvoNZoXohR68-LxCPopBqGGrwWj43_NeL93SVRFcKk-Bqj4jOe9PgH70RcTjI3qnsSDDSmIA-iGHfF4n9gg3WjEnQC_KP5WpNkzNIEqcBEWaoeNgxSHlafVFkW5qn5RLawP2FIe-OjfJ9OdYTQRJNoNI21PY28wepzQBIdL6rK44kg', # К2
+    -221202163: 'vk1.a.4cHbV3lJL2vc0-puNsdgjIVgYbYjd6pvNC4CIdFZZ04PswKN_BX3tkYKFcdqWdB4q5dHEXr5E6JSg0DF0ATpInCeCBxBEb51dMv18_MntKu1-ta6DX9l8h_GuT0C_0d4nnH-lt4KUuzlepGgdR4_izM4Tt6rb52hBBqOLVa2aDNWjfcybKkVsoD5kytzG0jiTtOjv1N9uGgyB6ksKO_zvQ', # К3
+    -219647526: 'vk1.a.GSp81p6NjbYmiJb5v9bMsmi1E7jh6VKEUhZSNBIqUqAsAuU1Uo78FAH1s9twKaHfrRjMXT1653jcuBa5CFkH_kpFPzoXoy0HrsCnjejelaX_4jvN2lMPGUUAMcV8MXJt9OA0kugbB3_aXTJcsVpkTNzrjm-vhQiG32eHsDnsvPgIwPm5x8M5gP1hG2zCtLh_jsZHbOdVt-6SHsRZ4yTs2Q', # К1
+    -219649455: 'vk1.a.-ffRiemlhl6GrjFiwXqglyWFA1pUUXyzIsOh-lRwm8qgSqItJCAARYnY1w9Uia7dlRPA2wX2XRZVjhJcb5gYD-CEQQqpMUmqrcWFSY8vy8v2IbObnFLFYm7DzCaovEOkzNR5IB1mtjyaMVkegmZBOXcNcFuemBZuq4eflzwVnd76VTuY16dzeRynmdgVjJ1LrJLAMEwDc6M8AE8eny4oOQ', # Ш
+    -215622579: 'vk1.a.lZHgD2apAbqlrr9nV1HYgTWoInkIsCEHle6d_OXDLoGUTAmsGm0j9SpLecjLKd50sU1z0TJf5Ofi5VjAIliV3U24IVtGNe0GTMcjk7bgWXP5EzvKoYqudjDzyhAJZUHjdoPkWIIUqB8f0gWD2XNa7LFYyKnSpIQZoVay3b0g8_auuMLl0cDlJHl1cU3FS7CdipMqzn3OaZ3OSKwdV2rQvQ'  # РОО
+}
 
 # 🔥 ФИКСАЦИЯ СЧЕТЧИКА НА 15107 🔥
 def get_saved_last_post_id():
@@ -51,6 +49,7 @@ def save_last_post_id(post_id):
 def run_bot_vk_2():
     print("Авторизация ВКонтакте (Бот 2)...")
     
+    # 1. Создаем сессию для чтения
     try:
         vk_read_session = vk_api.VkApi(token=READ_TOKEN)
         vk_reader = vk_read_session.get_api()
@@ -59,17 +58,23 @@ def run_bot_vk_2():
         print(f"[Фатальная Ошибка] Не удалось создать сессию чтения. Детали: {e}")
         return
 
-    try:
-        vk_write_session = vk_api.VkApi(token=WRITE_TOKEN)
-        vk_writer = vk_write_session.get_api()
-        print("[Успех] Сессия пользователя-администратора создана.")
-    except Exception as e:
-        print(f"[Фатальная Ошибка] Не удалось создать сессию публикации. Детали: {e}")
+    # 2. Создаем сессии для публикации (отдельно для каждой группы)
+    vk_writers = {}
+    for group_id, token in TARGET_GROUPS.items():
+        try:
+            session = vk_api.VkApi(token=token)
+            vk_writers[group_id] = session.get_api()
+            print(f"[Успех] Сессия публикации для группы {group_id} авторизована.")
+        except Exception as e:
+            print(f"[Ошибка] Ошибка авторизации для группы {group_id}: {e}")
+
+    if not vk_writers:
+        print("[Фатальная Ошибка] Ни одна целевая группа не авторизована. Остановка.")
         return
 
     last_post_id = get_saved_last_post_id()
     print(f"Бот ВК 2 запущен. В памяти ID прошлого поста: {last_post_id}")
-    print(f"Готов к публикации в {len(TARGET_GROUP_IDS)} групп(ы).")
+    print(f"Готов к публикации в {len(vk_writers)} групп(ы).")
 
     while True:
         try:
@@ -108,7 +113,6 @@ def run_bot_vk_2():
                             owner_id = item.get('owner_id')
                             media_id = item.get('id')
                             
-                            # ИСПРАВЛЕНИЕ: Безопасная проверка на None
                             if owner_id is not None and media_id is not None:
                                 att_str = f"{att_type}{owner_id}_{media_id}"
                                 if item.get('access_key'): 
@@ -116,19 +120,13 @@ def run_bot_vk_2():
                                 extracted.append(att_str)
                     return extracted
 
-                # 1. Извлекаем медиа из обычного поста
                 if 'attachments' in current_post:
                     attachments_list.extend(extract_attachments(current_post['attachments']))
                 
-                # 2. Если это РЕПОСТ, извлекаем текст и медиа из оригинального поста
                 if 'copy_history' in current_post and len(current_post['copy_history']) > 0:
                     repost = current_post['copy_history'][0]
-                    
-                    # Добавляем текст репоста, если он есть
                     if not post_text and repost.get('text'):
                         post_text = repost['text']
-                        
-                    # Добавляем картинки/видео из репоста
                     if 'attachments' in repost:
                         attachments_list.extend(extract_attachments(repost['attachments']))
 
@@ -136,7 +134,8 @@ def run_bot_vk_2():
                 print(f"[Бот 2] Собрано вложений: {len(attachments_list)}")
                 # ---------------------------------------------
                 
-                for target_id in TARGET_GROUP_IDS:
+                # Отправляем пост в каждую группу, используя её личный токен
+                for target_id, vk_writer in vk_writers.items():
                     try:
                         vk_writer.wall.post(
                             owner_id=target_id, 
@@ -146,8 +145,9 @@ def run_bot_vk_2():
                         )
                         print(f"  -> Успешно отправлено в {target_id}")
                         
-                        # ИСПРАВЛЕНИЕ: Чуть увеличен антиспам для безопасности профиля
-                        sleep_time = random.randint(30, 60)
+                        # Антиспам можно сделать меньше (10-20 сек), так как токены разные, 
+                        # но оставим небольшую паузу для защиты общего IP-адреса сервера.
+                        sleep_time = random.randint(10, 20)
                         print(f"  -> Антиспам: ждем {sleep_time} сек...")
                         time.sleep(sleep_time)
                         
