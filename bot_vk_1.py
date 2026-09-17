@@ -13,8 +13,8 @@ def print(*args, **kwargs):
 # 1. ТОКЕН ДЛЯ ЧТЕНИЯ (фейковый/дополнительный аккаунт)
 READ_TOKEN = 'vk1.a.UQQypBdwlUwwk6O3z7iJAXc8Tnzx6VcB3seRHXgioyrLDLW-xYTXy7SCqONeAc7FOuadlIg1u52uEVFGrKvjCZmV-wq70J2TG_MqZKtn7aXkudTIrURT-OG2bzB1neTWwkHAM-buqJIWLYT8ioGLy6EiL84LamSMjstFgw1ynkXR_sCGZsspN2zbF5P9chaLu98ONjvbDVGk67_j1-CURw'
 
-# 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ 
-WRITE_TOKEN = 'vk1.a.ev-6nDQqkhKAByZBoyIdTCrgqIB_btajDrjCRfMQGoDJh79nCN8oFtsIMnt9QU1wN8UJNhVsJQduZEpQ7OCXT4Y2GRoCcYUkYLXTUD4fcl05-gdrs8fZGNHNCYdCLcM3kCH3lastGbYNTeBMctmM1YES4B5vZ53hORiDyKjn9HwWwPVO-8ce5Q6hZ8IbAgY3Jxp2lGvqQJeiQfXkN-3k1g'
+# 2. ТОКЕН ДЛЯ ПУБЛИКАЦИИ (Новый токен вашей группы)
+WRITE_TOKEN = 'vk1.a.toKd8FuijClshyBhhwOz5WT5StVS5wYcLQsqYzkcdVWDpBlRp3IE_bVAB2VMf4tjXbLaHKzkXIiqz49d9fLsu0lPeRmqYMBZ04aQQ-uorhHqEwra5XnaECvHFFteN5dUvbbpQh6iz0kl-fb4a8-xLhgK0TTna73UXqT51w_iBmciiqNBTiYl012SceQMdZqHK339pfLPyEg7qpi0-ElR6Q'
 
 SOURCE_GROUP_ID = -218341918  
 TARGET_GROUP_IDS = [-225274463]  
@@ -46,13 +46,11 @@ def run_bot_vk_1():
         print(f"[Фатальная Ошибка] Бот 1: Ошибка читающего аккаунта. Детали: {e}")
         return
 
-    # Инициализация сессии для ПУБЛИКАЦИИ (группа/админ)
+    # Инициализация сессии для ПУБЛИКАЦИИ (группа)
     try:
         vk_write_session = vk_api.VkApi(token=WRITE_TOKEN)
         vk_writer = vk_write_session.get_api()
-        # Проверка прав доступа к целевой группе
-        vk_writer.groups.getById(group_id=abs(TARGET_GROUP_IDS[0])) 
-        print(f"[Успех] Бот 1: Целевая группа {TARGET_GROUP_IDS[0]} доступна для публикации.")
+        print(f"[Успех] Бот 1: Сессия публикации для группы {TARGET_GROUP_IDS[0]} успешно авторизована.")
     except Exception as e:
         print(f"[Фатальная Ошибка] Бот 1: Ошибка сессии публикации. Детали: {e}")
         return
@@ -79,7 +77,7 @@ def run_bot_vk_1():
                 print(f"[Бот 1] Первый запуск. Запомнили пост: {last_post_id}. Ждем новые.")
             
             elif current_post_id <= last_post_id:
-                # Тихо ждем, если новых постов нет (без лишнего спама в консоль)
+                # Тихо ждем, если новых постов нет
                 pass
                 
             elif current_post_id > last_post_id:
@@ -112,10 +110,8 @@ def run_bot_vk_1():
                 # 2. Обработка репоста (copy_history)
                 if 'copy_history' in current_post and len(current_post['copy_history']) > 0:
                     repost = current_post['copy_history'][0]
-                    # Добавляем текст репоста, если основного текста нет
                     if not post_text and repost.get('text'):
                         post_text = repost['text']
-                    # Добавляем вложения из репоста
                     if 'attachments' in repost:
                         attachments_list.extend(extract_attachments(repost['attachments']))
 
